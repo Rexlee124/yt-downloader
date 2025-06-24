@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Video Downloader</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f0f0f0;
+    }
+    input {
+      width: 60%;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    #result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>YouTube Video Downloader</h1>
+  <p>Paste YouTube video URL</p>
+  <input type="text" id="url" placeholder="https://www.youtube.com/watch?v=..." />
+  <br>
+  <button onclick="download()">Download</button>
+  <div id="result"></div>
+
+  <script>
+    async function download() {
+      const url = document.getElementById("url").value;
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerText = "Processing...";
+
+      try {
+        const response = await fetch("http://localhost:8000/download", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+
+        if (data.download_url) {
+          resultDiv.innerHTML = `<a href="http://localhost:8000${data.download_url}" target="_blank">Click here to view or download video</a>`;
+        } else if (data.error) {
+          resultDiv.innerText = "Error: " + data.error;
+        } else {
+          resultDiv.innerText = "Unexpected response.";
+        }
+
+      } catch (err) {
+        resultDiv.innerText = "Failed to fetch. Backend might not be running.";
+      }
+    }
+  </script>
+</body>
+</html>
